@@ -82,7 +82,11 @@
         applyWeight(font.weights[0].file);
         
         select.addEventListener("change", () => applyWeight(select.value));
-        copyBtn.addEventListener("click", () => copyLink(font.jsonUrl, copyBtn));
+        copyBtn.addEventListener("click", () => {
+            const main = window.DCF.buildMainForFont(font);
+            const json = window.DCF.buildFontJson(font.name, main, previewInput.value || previewInput.placeholder);
+            copyLink(window.DCF.buildLink(json), copyBtn);
+        });
         
         return card;
     }
