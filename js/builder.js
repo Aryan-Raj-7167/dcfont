@@ -1,23 +1,13 @@
 (function () {
-    const KEY_SPECS = [
-        { key: "ggsans-Normal", group: "gg sans", weight: "regular", italic: false },
-        { key: "ggsans-Medium", group: "gg sans", weight: "medium", italic: false },
-        { key: "ggsans-Semibold", group: "gg sans", weight: "semibold", italic: false },
-        { key: "ggsans-Bold", group: "gg sans", weight: "bold", italic: false },
-        { key: "ggsans-ExtraBold", group: "gg sans", weight: "extrabold", italic: false },
-        { key: "ggsans-NormalItalic", group: "gg sans", weight: "regular", italic: true },
-        { key: "ggsans-MediumItalic", group: "gg sans", weight: "medium", italic: true },
-        { key: "ggsans-SemiboldItalic", group: "gg sans", weight: "semibold", italic: true },
-        { key: "ggsans-BoldItalic", group: "gg sans", weight: "bold", italic: true },
-        { key: "ggsans-ExtraBoldItalic", group: "gg sans", weight: "extrabold", italic: true },
-        { key: "NotoSans-Normal", group: "Noto Sans", weight: "regular", italic: false },
-        { key: "NotoSans-Medium", group: "Noto Sans", weight: "medium", italic: false },
-        { key: "NotoSans-Semibold", group: "Noto Sans", weight: "semibold", italic: false },
-        { key: "NotoSans-Bold", group: "Noto Sans", weight: "bold", italic: false },
-        { key: "NotoSans-ExtraBold", group: "Noto Sans", weight: "extrabold", italic: false },
-        { key: "SourceCodePro-Semibold", group: "Other roles", weight: "semibold", italic: false },
-        { key: "ABCGintoNord-ExtraBold", group: "Other roles", weight: "extrabold", italic: false },
-    ];
+    function groupForKey(key) {
+        if (key.startsWith("ggsans")) return "gg sans";
+        if (key.startsWith("NotoSans")) return "Noto Sans";
+        return "Other roles";
+    }
+    const KEY_SPECS = window.DCF.KEY_SPECS.map((spec) => ({
+        ...spec,
+        group: groupForKey(spec.key),
+    }));
     
     const DEFAULT_FONT = "Poppins";
     const DEFAULT_CODE_FONT = "SourceCodePro";
@@ -96,7 +86,7 @@
         });
         els.fillSelect.value = DEFAULT_FONT;
     }
-    
+
     function renderAllRows() {
         els.rows.innerHTML = "";
         let lastGroup = null;
@@ -333,18 +323,6 @@
         };
     }
     
-    function toBase64Url(obj) {
-        const json = JSON.stringify(obj);
-        const bytes = new TextEncoder().encode(json);
-        let binary = "";
-        bytes.forEach((b) => (binary += String.fromCharCode(b)));
-        return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-    }
-    
-    function buildLink(obj) {
-        return new URL(`/font/${toBase64Url(obj)}.json`, location.origin).href;
-    }
-    
     function slugify(text) {
         return (
             text
@@ -358,7 +336,7 @@
     function updateOutput() {
         const obj = buildFontJSON();
         els.jsonPreview.textContent = JSON.stringify(obj, null, 2);
-        els.copyLinkBtn.dataset.uri = buildLink(obj);
+        els.copyLinkBtn.dataset.uri = window.DCF.buildLink(obj);
         els.downloadBtn.dataset.filename = `${slugify(builderState.configName)}-font.json`;
         els.downloadBtn.dataset.json = JSON.stringify(obj, null, 2);
     }
