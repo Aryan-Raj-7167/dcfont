@@ -15,7 +15,7 @@
     
     let fontsPromise = null;
     const loadedFaces = new Map();
-
+    
     function assetUrl(fontName, file) {
         return new URL(`/${CONFIG.fontsDir}/${fontName}/${file}`, location.origin).href;
     }
@@ -32,7 +32,7 @@
         const tree = await getTree(branch);
         const fonts = buildFontList(tree);
         if (fonts.length === 0) {
-            throw new Error(`No fonts with a font.json were found under /${CONFIG.fontsDir}.`);
+            throw new Error(`No fonts with .ttf files were found under /${CONFIG.fontsDir}.`);
         }
         return fonts;
     }
@@ -62,24 +62,18 @@
             if (parts.length !== 3 || parts[0] !== CONFIG.fontsDir) continue;
             
             const [, folder, filename] = parts;
-            const lower = filename.toLowerCase();
+            if (!filename.toLowerCase().endsWith(".ttf")) continue; // skip LICENSE.txt etc.
             
-            if (lower === "font.json") {
-                if (!folders.has(folder)) folders.set(folder, { weights: [] });
-                folders.get(folder).hasJson = true;
-            } else if (lower.endsWith(".ttf")) {
-                if (!folders.has(folder)) folders.set(folder, { weights: [] });
-                folders.get(folder).weights.push(filename);
-            }
+            if (!folders.has(folder)) folders.set(folder, []);
+            folders.get(folder).push(filename);
         }
         
         const fonts = [];
-        for (const [name, info] of folders) {
-            if (!info.hasJson || info.weights.length === 0) continue;
+        for (const [name, files] of folders) {
+            if (files.length === 0) continue;
             fonts.push({
                 name,
-                jsonUrl: assetUrl(name, "font.json"),
-                weights: sortWeights(info.weights).map((file) => ({
+                weights: sortWeights(files).map((file) => ({
                     file,
                     label: fileToLabel(file),
                     url: assetUrl(name, file),
@@ -117,7 +111,7 @@
             norm.set(w.file.replace(/\.ttf$/i, "").toLowerCase(), w);
         }
         const italicKey = (base) => (base === "regular" ? "italic" : base + "italic");
-        
+    
         // 1. Exact style match.
         if (italic && norm.has(italicKey(desired))) {
             return { weight: norm.get(italicKey(desired)), exact: true, synthetic: false };
@@ -178,14 +172,69 @@
         }
     }
     
+    const KEY_SPECS = [
+        { key: "ggsans-Normal", weight: "regular", italic: false },
+        { key: "ggsans-Medium", weight: "medium", italic: false },
+        { key: "ggsans-Semibold", weight: "semibold", italic: false },
+        { key: "ggsans-Bold", weight: "bold", italic: false },
+        { key: "ggsans-ExtraBold", weight: "extrabold", italic: false },
+        { key: "ggsans-NormalItalic", weight: "regular", italic: true },
+        { key: "ggsans-MediumItalic", weight: "medium", italic: true },
+        { key: "ggsans-SemiboldItalic", weight: "semibold", italic: true },
+        { key: "ggsans-BoldItalic", weight: "bold", italic: true },
+        { key: "ggsans-ExtraBoldItalic", weight: "extrabold", italic: true },
+        { key: "NotoSans-Normal", weight: "regular", italic: false },
+        { key: "NotoSans-Medium", weight: "medium", italic: false },
+        { key: "NotoSans-Semibold", weight: "semibold", italic: false },
+        { key: "NotoSans-Bold", weight: "bold", italic: false },
+        { key: "NotoSans-ExtraBold", weight: "extrabold", italic: false },
+        { key: "SourceCodePro-Semibold", weight: "semibold", italic: false },
+        { key: "ABCGintoNord-ExtraBold", weight: "extrabold", italic: false },
+    ];
+    
+    function buildMainForFont(font) {
+        const main = {};
+        KEY_SPECS.forEach((spec) => {
+            const { weight } = matchWeight(font, spec.weight, spec.italic);
+            main[spec.key] = weight.url;
+        });
+        return main;
+    }
+    
+    function buildFontJson(name, main, previewText) {
+        return {
+            spec: 1,
+            name,
+            previewText: previewText || "The quick brown fox jumps over the lazy dog",
+            main,
+        };
+    }
+    
+    function toBase64Url(obj) {
+        const json = JSON.stringify(obj);
+        const bytes = new TextEncoder().encode(json);
+        let binary = "";
+        bytes.forEach((b) => (binary += String.fromCharCode(b)));
+        return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+    
+    function buildLink(obj) {
+        return new URL(`/font/${toBase64Url(obj)}.json`, location.origin).href;
+    }
+    
     window.DCF = {
         CONFIG,
         WEIGHT_ORDER,
+        KEY_SPECS,
         getFonts,
         findFont,
         matchWeight,
         loadFace,
         fileToLabel,
         assetUrl,
+        buildMainForFont,
+        buildFontJson,
+        toBase64Url,
+        buildLink,
     };
 })();
