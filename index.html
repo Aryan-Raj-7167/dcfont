@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dcfont — custom font specimens for Discord</title>
+    <meta name="description" content="Browse, preview, and grab font.json links for every font in the dcfonts repo — or mix your own." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%237c8cff%22>Aa</text></svg>" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+    
+    <div class="noise" aria-hidden="true"></div>
+    
+    <header class="site-header">
+        <div class="header-row">
+            <div class="brand">
+                <span class="brand-mark">Aa</span>
+                <div class="brand-text">
+                    <h1>dcfonts</h1>
+                    <p>Custom font packs for Revenge &amp; other Discord clients</p>
+                </div>
+            </div>
+            <a class="repo-link" href="https://github.com/aryan-raj-7167/dcfonts" target="_blank" rel="noopener">
+                View on GitHub<span aria-hidden="true"> ↗</span>
+            </a>
+        </div>
+        
+        <label class="specimen-control" for="preview-text">
+            <span class="specimen-label">Type something, watch every font say it</span>
+            <input id="preview-text" type="text" autocomplete="off" spellcheck="false" value="The quick brown fox jumps over the lazy dog" placeholder="The quick brown fox jumps over the lazy dog" />
+        </label>
+    </header>
+    
+    <main id="browse-view" class="view">
+        <div class="toolbar">
+            <label class="search-control" for="font-search">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                    <circle cx="6.5" cy="6.5" r="5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                    <line x1="10.3" y1="10.3" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                <input id="font-search" type="text" placeholder="Search fonts by name…" autocomplete="off" spellcheck="false" />
+            </label>
+            <button id="open-builder-btn" type="button" class="cta-btn">Create your own font.json →</button>
+            <span id="font-count" class="font-count" role="status" aria-live="polite"></span>
+        </div>
+        
+        <div id="status-region" class="status-region" role="status" aria-live="polite"></div>
+        
+        <section id="font-grid" class="font-grid" aria-label="Available fonts"></section>
+    </main>
+    
+    <main id="builder-view" class="view is-hidden">
+        <div class="builder-toolbar">
+            <button id="back-to-browse-btn" type="button" class="back-btn">← Back to fonts</button>
+            <div class="builder-title">
+                <h2 tabindex="-1">Create your own font.json</h2>
+                <p>Pick a family for every role Discord reads, preview it live, then grab a link.</p>
+            </div>
+        </div>
+        
+        <div id="builder-status" class="status-region" role="status" aria-live="polite"></div>
+        
+        <div class="builder-layout">
+            <section class="builder-config">
+                <label class="config-name-field">
+                    <span>Mix name</span>
+                    <input id="config-name" type="text" value="My Custom Mix" autocomplete="off" spellcheck="false" />
+                </label>
+                
+                <div class="fill-all-field">
+                    <span>Fill every role with</span>
+                    <select id="fill-all-select" aria-label="Font to fill every role with"></select>
+                    <button id="fill-all-btn" type="button" class="retry-btn">Apply to all</button>
+                </div>
+            </section>
+            
+            <section id="builder-rows" class="builder-rows" aria-label="Font role assignments"></section>
+            
+            <section class="builder-output">
+                <h3>Your font.json</h3>
+                <div class="output-actions">
+                    <button id="copy-link-btn" type="button" class="copy-btn">
+                        <span class="copy-label">Copy custom link</span>
+                    </button>
+                    <button id="download-json-btn" type="button" class="copy-btn copy-btn--ghost">
+                        <span class="copy-label">Download font.json</span>
+                    </button>
+                    <button id="copy-raw-btn" type="button" class="copy-btn copy-btn--ghost">
+                        <span class="copy-label">Copy raw JSON</span>
+                    </button>
+                </div>
+                <p class="output-note">
+                    That's a real, hosted link ending in <code>.json</code> — nothing to upload, nothing that expires.
+                    The whole
+                    mix is encoded right into the URL; paste it anywhere a normal link works. "Download font.json" is
+                    there too,
+                    in case you'd rather self-host it somewhere else.
+                </p>
+                <pre id="json-preview" class="json-preview"></pre>
+            </section>
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <p>Each font ships as a <code>font.json</code> pointing at hosted <code>.ttf</code> files — paste that link into
+            your client's custom font settings.</p>
+    </footer>
+    
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    
+    <script src="js/fonts.js"></script>
+    <script src="js/browser.js"></script>
+    <script src="js/builder.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
