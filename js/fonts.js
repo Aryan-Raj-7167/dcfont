@@ -62,7 +62,7 @@
             if (parts.length !== 3 || parts[0] !== CONFIG.fontsDir) continue;
             
             const [, folder, filename] = parts;
-            if (!filename.toLowerCase().endsWith(".ttf")) continue; // skip LICENSE.txt etc.
+            if (!/\.(ttf|otf)$/i.test(filename)) continue; // skip LICENSE.txt etc.
             
             if (!folders.has(folder)) folders.set(folder, []);
             folders.get(folder).push(filename);
@@ -87,8 +87,8 @@
     
     function sortWeights(files) {
         return [...files].sort((a, b) => {
-            const ai = WEIGHT_ORDER.indexOf(a.replace(/\.ttf$/i, "").toLowerCase());
-            const bi = WEIGHT_ORDER.indexOf(b.replace(/\.ttf$/i, "").toLowerCase());
+            const ai = WEIGHT_ORDER.indexOf(a.replace(/\.(ttf|otf)$/i, "").toLowerCase());
+            const bi = WEIGHT_ORDER.indexOf(b.replace(/\.(ttf|otf)$/i, "").toLowerCase());
             if (ai === -1 && bi === -1) return a.localeCompare(b);
             if (ai === -1) return 1;
             if (bi === -1) return -1;
@@ -97,7 +97,7 @@
     }
     
     function fileToLabel(filename) {
-        return filename.replace(/\.ttf$/i, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+        return filename.replace(/\.(ttf|otf)$/i, "").replace(/([a-z])([A-Z])/g, "$1 $2");
     }
     
     function findFont(fonts, name) {
@@ -108,7 +108,7 @@
         const desired = weightBasename.toLowerCase();
         const norm = new Map();
         for (const w of font.weights) {
-            norm.set(w.file.replace(/\.ttf$/i, "").toLowerCase(), w);
+            norm.set(w.file.replace(/\.(ttf|otf)$/i, "").toLowerCase(), w);
         }
         const italicKey = (base) => (base === "regular" ? "italic" : base + "italic");
     
@@ -156,8 +156,9 @@
         if (loadedFaces.has(key)) return loadedFaces.get(key);
         
         const promise = (async () => {
-            const family = `dcf-${fontName.replace(/\s+/g, "-")}-${file.replace(/\.ttf$/i, "")}`;
-            const face = new FontFace(family, `url(${assetUrl(fontName, file)})`);
+            const family = `dcf-${fontName.replace(/\s+/g, "-")}-${file.replace(/\.(ttf|otf)$/i, "")}`;
+            const format = /\.otf$/i.test(file) ? "opentype" : "truetype";
+            const face = new FontFace(family, `url("${assetUrl(fontName, file)}") format("${format}")`);
             await face.load();
             document.fonts.add(face);
             return family;

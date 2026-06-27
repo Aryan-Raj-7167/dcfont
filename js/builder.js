@@ -283,7 +283,7 @@
     });
     
     function isExact(spec, weightFile) {
-        const base = weightFile.replace(/\.ttf$/i, "").toLowerCase();
+        const base = weightFile.replace(/\.(ttf|otf)$/i, "").toLowerCase();
         const desired = spec.italic
             ? spec.weight === "regular"
                 ? "italic"
